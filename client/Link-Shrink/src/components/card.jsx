@@ -7,6 +7,7 @@ const Card = () => {
   const [shortUrl, setShortUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handlePaste = async () => {
     try {
@@ -20,7 +21,11 @@ const Card = () => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(shortUrl);
-      // Optional: Add feedback to the user that copy was successful
+      setCopied(true);
+      // Reset the copied state after a couple of seconds
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
@@ -31,6 +36,7 @@ const Card = () => {
     setShortUrl("");
     setError("");
     setLoading(false);
+    setCopied(false);
   };
 
   const handleSubmit = async (e) => {
@@ -46,15 +52,6 @@ const Card = () => {
       return;
     }
 
-    // Basic URL validation using a regular expression
-    // This pattern is more robust and checks for domain, optional port, path, and query params.
-    const urlPattern =
-      /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
-    if (!urlPattern.test(longUrl)) {
-      setError("Please enter a valid URL.");
-      setLoading(false);
-      return;
-    }
     try {
       const response = await fetch("/api/shorten", {
         method: "POST",
@@ -101,7 +98,12 @@ const Card = () => {
           isReadOnly
           disabled={loading}
         >
-          {shortUrl && <Copy onClick={handleCopy} />}
+          {shortUrl &&
+            (copied ? (
+              <Check size={16} className="text-green-500" />
+            ) : (
+              <Copy onClick={handleCopy} />
+            ))}
         </InputElement>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <div className="flex gap-2">
