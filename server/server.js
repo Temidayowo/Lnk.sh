@@ -10,9 +10,18 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+
+const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:5173"];
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from your frontend development server
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST"], // Allow the necessary HTTP methods
   })
 );
