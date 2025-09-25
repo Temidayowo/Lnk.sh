@@ -50,7 +50,10 @@ const Card = () => {
     }
 
     try {
-      const res = await axios.post("/api/shorten", data);
+      const res = await axios.post(
+        "https://lnk-sh.vercel.app//api/shorten",
+        data
+      );
       console.log(res.data.shortUrl);
       setShortUrl(res.data.shortUrl);
       setShowResponse(true);
